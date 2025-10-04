@@ -66,17 +66,6 @@ class KVHandler(BaseHTTPRequestHandler):
     # GET /kv/{key} or /kv/range
     def do_GET(self):
         p = urllib.parse.urlparse(self.path)
-        if p.path.startswith("/kv/"):
-            parts = p.path.split("/")
-            if len(parts) != 3 or not parts[2]:
-                self._send(404, b""); return
-            key = urllib.parse.unquote(parts[2]).encode("utf-8", "strict")
-            v = KVHandler.engine.get(key)
-            if v is None:
-                self._send(404, b"")
-            else:
-                self._send(200, v, {"Content-Type": "application/octet-stream"})
-            return
 
         if p.path == "/kv/range":
             qs = urllib.parse.parse_qs(p.query or "")
@@ -105,6 +94,18 @@ class KVHandler(BaseHTTPRequestHandler):
                        "v": v.decode("utf-8", "strict")}
                 line = (json.dumps(obj) + "\n").encode("utf-8")
                 self.wfile.write(line)
+            return
+        
+        if p.path.startswith("/kv/"):
+            parts = p.path.split("/")
+            if len(parts) != 3 or not parts[2]:
+                self._send(404, b""); return
+            key = urllib.parse.unquote(parts[2]).encode("utf-8", "strict")
+            v = KVHandler.engine.get(key)
+            if v is None:
+                self._send(404, b"")
+            else:
+                self._send(200, v, {"Content-Type": "application/octet-stream"})
             return
 
         self._send(404, b"")
