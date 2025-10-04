@@ -63,5 +63,15 @@ def main():
     except KeyboardInterrupt:
         _shutdown(signal.SIGINT, None)
 
+
 if __name__ == "__main__":
+    import logging, sys
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)],
+        force=True,
+    )
+    logging.info("server starting…")
+
     main()

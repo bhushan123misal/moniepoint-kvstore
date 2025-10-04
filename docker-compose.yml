@@ -1,0 +1,19 @@
+services:
+  kvstore:
+    build: .
+    image: kvstore:local
+    container_name: kvstore
+    ports:
+      - "7070:7070"
+    volumes:
+      - kv_data:/data
+    environment:
+      - DATA_DIR=/data
+      - PORT=7070
+      - SNAPSHOT_INTERVAL_S=60
+      - WAL_MAX_BYTES=134217728
+      - MEMTABLE_MB=64
+    stop_signal: SIGTERM
+    stop_grace_period: 30s
+volumes:
+  kv_data:
