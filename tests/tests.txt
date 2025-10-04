@@ -1,0 +1,29 @@
+# ---------- PUT & GET ----------
+curl -X PUT "http://{{HOST}}:{{PORT}}/kv/user:1" --data-binary "Bhushan" # expects=200
+curl -X PUT "http://{{HOST}}:{{PORT}}/kv/user:2" --data-binary "Alice"   # expects=200
+
+curl "http://{{HOST}}:{{PORT}}/kv/user:1"                                # expects=200
+curl "http://{{HOST}}:{{PORT}}/kv/user:2"                                # expects=200
+curl "http://{{HOST}}:{{PORT}}/kv/missing"                               # expects=404
+
+# ---------- Overwrite existing key ----------
+curl -X PUT "http://{{HOST}}:{{PORT}}/kv/user:1" --data-binary "Updated"  # expects=200
+curl "http://{{HOST}}:{{PORT}}/kv/user:1"                                # expects=200
+
+# ---------- Delete key ----------
+curl -X DELETE "http://{{HOST}}:{{PORT}}/kv/user:1"                      # expects=200
+curl "http://{{HOST}}:{{PORT}}/kv/user:1"                                # expects=404
+
+# ---------- Batch operations ----------
+curl -X POST "http://{{HOST}}:{{PORT}}/kv/batch" --data-binary $'PUT user:3 Tom\nPUT user:4 Jerry'      # expects=200
+curl "http://{{HOST}}:{{PORT}}/kv/user:3"                                # expects=200
+curl "http://{{HOST}}:{{PORT}}/kv/user:4"                                # expects=200
+curl "http://{{HOST}}:{{PORT}}/kv/user:20"                                # expects=404
+
+# ---------- Range iteration ----------
+curl "http://{{HOST}}:{{PORT}}/kv/range?start=user:&end=user:zzz&limit=10"  # expects=200
+
+# ---------- Invalid cases ----------
+curl -X PUT "http://{{HOST}}:{{PORT}}/kv/" --data-binary "NoKey"         # expects=404
+curl -X POST "http://{{HOST}}:{{PORT}}/kv/batch" --data-binary $'BAD user:5' # expects=400
+curl "http://{{HOST}}:{{PORT}}/kv/range?limit=abc"                       # expects=400
