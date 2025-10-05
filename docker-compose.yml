@@ -1,19 +1,77 @@
 services:
-  kvstore:
+  n1:
     build: .
     image: kvstore:local
-    container_name: kvstore
+    container_name: n1
+    command: >
+      python main.py
+      --data-dir /data
+      --host 0.0.0.0
+      --port 7070
+      --node-id n1
+      --cluster-id kv-demo-1
+      --peers n1=http://n1:7070,n2=http://n2:7071,n3=http://n3:7072
+    environment:
+      - DATA_DIR=/data
+      - HOST=0.0.0.0
+      - PORT=7070
     ports:
       - "7070:7070"
     volumes:
-      - kv_data:/data
-    environment:
-      - DATA_DIR=/data
-      - PORT=7070
-      - SNAPSHOT_INTERVAL_S=60
-      - WAL_MAX_BYTES=134217728
-      - MEMTABLE_MB=64
+      - n1_data:/data
+    restart: unless-stopped
     stop_signal: SIGTERM
     stop_grace_period: 30s
+
+  n2:
+    build: .
+    image: kvstore:local
+    container_name: n2
+    command: >
+      python main.py
+      --data-dir /data
+      --host 0.0.0.0
+      --port 7071
+      --node-id n2
+      --cluster-id kv-demo-1
+      --peers n1=http://n1:7070,n2=http://n2:7071,n3=http://n3:7072
+    environment:
+      - DATA_DIR=/data
+      - HOST=0.0.0.0
+      - PORT=7071
+    ports:
+      - "7071:7071"
+    volumes:
+      - n2_data:/data
+    restart: unless-stopped
+    stop_signal: SIGTERM
+    stop_grace_period: 30s
+
+  n3:
+    build: .
+    image: kvstore:local
+    container_name: n3
+    command: >
+      python main.py
+      --data-dir /data
+      --host 0.0.0.0
+      --port 7072
+      --node-id n3
+      --cluster-id kv-demo-1
+      --peers n1=http://n1:7070,n2=http://n2:7071,n3=http://n3:7072
+    environment:
+      - DATA_DIR=/data
+      - HOST=0.0.0.0
+      - PORT=7072
+    ports:
+      - "7072:7072"
+    volumes:
+      - n3_data:/data
+    restart: unless-stopped
+    stop_signal: SIGTERM
+    stop_grace_period: 30s
+
 volumes:
-  kv_data:
+  n1_data:
+  n2_data:
+  n3_data:
